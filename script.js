@@ -10,23 +10,42 @@ const io = new IntersectionObserver((entries) => {
 els.forEach(el => io.observe(el));
 
 // Big brand watermarks fade in as each section arrives, instead of being
-// there from the start.
+// there from the start. They are visible by default in CSS and only hidden
+// once this runs, so a failure here can never leave them invisible.
 (function(){
-  const marks = document.querySelectorAll('[data-watermark]');
+  const marks = Array.from(document.querySelectorAll('[data-watermark]'));
   if (!marks.length) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    marks.forEach(el => el.classList.add('wm-in'));
-    return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let pending = marks.slice();
+  marks.forEach(el => el.classList.add('wm-armed'));
+  let io = null;
+  function cleanup(){
+    window.removeEventListener('scroll', check);
+    window.removeEventListener('resize', check);
+    if (io) io.disconnect();
   }
-  const wmIO = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting){
-        entry.target.classList.add('wm-in');
-        wmIO.unobserve(entry.target);
-      }
+  function reveal(el){
+    el.classList.add('wm-in');
+    pending = pending.filter(x => x !== el);
+    if (!pending.length) cleanup();
+  }
+  function check(){
+    const margin = window.innerHeight * 0.12;
+    pending.slice().forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight - margin && r.bottom > margin) reveal(el);
     });
-  }, { threshold: 0, rootMargin: '-12% 0px -12% 0px' });
-  marks.forEach(el => wmIO.observe(el));
+  }
+  if ('IntersectionObserver' in window){
+    io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) reveal(e.target); });
+    }, { threshold: 0, rootMargin: '-12% 0px -12% 0px' });
+    marks.forEach(el => io.observe(el));
+  }
+  // Safety net: a plain scroll check, in case the observer never delivers.
+  window.addEventListener('scroll', check, { passive:true });
+  window.addEventListener('resize', check);
+  check();
 })();
 
 document.getElementById('year').textContent = new Date().getFullYear();
