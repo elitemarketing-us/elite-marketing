@@ -88,6 +88,7 @@ function initScrollSteps(pinId, cardSelector){
   const cards = Array.from(pin.querySelectorAll(cardSelector));
   if (!cards.length) return;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const stickyEl = pin.querySelector('.journey-sticky, .steps-sticky');
   let ticking = false;
   let wasMobile = false;
 
@@ -158,7 +159,11 @@ function initScrollSteps(pinId, cardSelector){
       });
       cards.forEach((card, i) => {
         const r = card.getBoundingClientRect();
-        card.classList.toggle('is-active', r.top < center && r.bottom > center);
+        // The last step keeps its highlight once reached — there is no step after
+        // it to hand over to, so releasing it would leave the list looking unfinished.
+        const isLast = i === cards.length - 1;
+        const reached = r.top < center;
+        card.classList.toggle('is-active', (reached && r.bottom > center) || (isLast && reached));
         // Where a dashed connector exists, the dot lights up only once that line
         // has actually reached it — the same rule the desktop rail follows. The
         // first dot has no incoming line, so it lights when the scroll reaches it.
@@ -176,11 +181,15 @@ function initScrollSteps(pinId, cardSelector){
     const rect = pin.getBoundingClientRect();
     const total = rect.height - window.innerHeight;
     if (total <= 0) return;
-    const progress = Math.max(0, Math.min(1, -rect.top / total));
-    const started = rect.top < 0;
+    // Measure from the moment the block actually pins under the header, so the
+    // first step lights up as the section settles rather than a beat later.
+    const stickyTop = stickyEl ? (parseFloat(getComputedStyle(stickyEl).top) || 0) : 0;
+    const progress = Math.max(0, Math.min(1, (stickyTop - rect.top) / total));
+    const started = rect.top <= stickyTop;
     const step = started ? Math.min(cards.length - 1, Math.floor(progress * cards.length)) : -1;
     cards.forEach((card, i) => {
-      card.classList.toggle('is-active', i === step);
+      const isLast = i === cards.length - 1;
+      card.classList.toggle('is-active', i === step || (started && progress >= 1 && isLast));
       card.classList.toggle('is-done', step >= 0 && i <= step);
     });
     setLineFills(started ? progress : 0);
