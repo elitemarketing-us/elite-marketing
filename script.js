@@ -89,6 +89,40 @@ function initScrollSteps(pinId, cardSelector){
   if (!cards.length) return;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let ticking = false;
+  let wasMobile = false;
+
+  // Mobile: the connector runs vertically (card N's dot -> card N+1's number),
+  // so its two halves are measured here and filled as one continuous line —
+  // same progressive darkening the desktop rail has.
+  function layoutMobileLines(trigger){
+    cards.forEach((card, i) => {
+      const next = cards[i + 1];
+      if (!next) return;
+      const out = card.querySelector('.jline-out');
+      const nin = next.querySelector('.jline-in');
+      const dot = card.querySelector('.journey-dot');
+      const num = next.querySelector('.journey-index');
+      if (!out || !nin || !dot || !num) return;
+      const cardB = card.getBoundingClientRect().bottom;
+      const nextT = next.getBoundingClientRect().top;
+      const dotB = dot.getBoundingClientRect().bottom;
+      const numT = num.getBoundingClientRect().top;
+      const outLen = Math.max(0, cardB - dotB);
+      const inLen = Math.max(0, numT - nextT);
+      out.style.height = outLen.toFixed(1) + 'px';
+      nin.style.height = inLen.toFixed(1) + 'px';
+      const span = Math.max(1, numT - dotB);
+      const done = Math.max(0, Math.min(1, (trigger - dotB) / span)) * (outLen + inLen);
+      const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+      out.style.setProperty('--line-fill', outLen ? clamp01(done / outLen) : 1);
+      nin.style.setProperty('--line-fill', inLen ? clamp01((done - outLen) / inLen) : 1);
+    });
+  }
+  function clearMobileLines(){
+    cards.forEach(card => {
+      Array.from(card.querySelectorAll('.jline')).forEach(l => { l.style.height = ''; });
+    });
+  }
 
   function setLineFills(progress){
     cards.forEach((card, i) => {
@@ -106,9 +140,11 @@ function initScrollSteps(pinId, cardSelector){
     if (reduceMotion.matches){
       cards.forEach(card => card.classList.add('is-done'));
       setLineFills(1);
+      if (window.innerWidth <= 1050) layoutMobileLines(Infinity);
       return;
     }
     if (window.innerWidth <= 1050){
+      wasMobile = true;
       const center = window.innerHeight * 0.6;
       let step = -1;
       cards.forEach((card, i) => {
@@ -119,8 +155,10 @@ function initScrollSteps(pinId, cardSelector){
         card.classList.toggle('is-active', r.top < center && r.bottom > center);
         card.classList.toggle('is-done', i <= step);
       });
+      layoutMobileLines(center);
       return;
     }
+    if (wasMobile){ wasMobile = false; clearMobileLines(); }
     const rect = pin.getBoundingClientRect();
     const total = rect.height - window.innerHeight;
     if (total <= 0) return;
