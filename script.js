@@ -9,6 +9,26 @@ const io = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 els.forEach(el => io.observe(el));
 
+// Big brand watermarks fade in as each section arrives, instead of being
+// there from the start.
+(function(){
+  const marks = document.querySelectorAll('[data-watermark]');
+  if (!marks.length) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    marks.forEach(el => el.classList.add('wm-in'));
+    return;
+  }
+  const wmIO = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting){
+        entry.target.classList.add('wm-in');
+        wmIO.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '-12% 0px -12% 0px' });
+  marks.forEach(el => wmIO.observe(el));
+})();
+
 document.getElementById('year').textContent = new Date().getFullYear();
 
 const btn = document.querySelector('.menu-button');
