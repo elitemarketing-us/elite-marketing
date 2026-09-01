@@ -179,7 +179,12 @@ function initScrollSteps(pinId, cardSelector){
     }
     if (wasMobile){ wasMobile = false; clearMobileLines(); }
     const rect = pin.getBoundingClientRect();
-    const total = rect.height - window.innerHeight;
+    // Scrub range = how far the block travels while pinned. The viewport is the
+    // right measure while the pin is taller than the screen; if it ever isn't,
+    // fall back to the sticky block's real travel so the sequence still runs
+    // instead of silently going dead.
+    let total = rect.height - window.innerHeight;
+    if (total <= 0) total = rect.height - (stickyEl ? stickyEl.offsetHeight : 0);
     if (total <= 0) return;
     // Measure from the moment the block actually pins under the header, so the
     // first step lights up as the section settles rather than a beat later.
