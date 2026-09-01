@@ -545,8 +545,8 @@ const rmCarousel = (function(){
     });
 
     if (ready){
-      const ap = tall ? 0.15 : ANCHOR_P;
-      const at = tall ? 1.9 : ANCHOR_T;
+      const ap = tall ? 0.06 : ANCHOR_P;
+      const at = tall ? 2.0 : ANCHOR_T;
       const a = Math.min(0.98, at / duration);
       const f = p <= ap
         ? (p / ap) * a
