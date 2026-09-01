@@ -156,11 +156,19 @@ const rmCarousel = (function(){
   const half = kids.length / 2;
 
   let loop = 0;                // width of one full (non duplicated) set
-  let pos = 0;                 // float accumulator for scrollLeft
+  let pos = 0;                 // float accumulator for the track's position
   let last = 0;
   let raf = 0;
   let holds = 0;               // >0 => auto-scroll suspended
   let idleTimer = 0;
+  let inited = false;
+  let suppressWrap = false;
+
+  // Sub-pixel translate3d instead of integer scrollLeft: at 11px/s a
+  // whole-pixel-only step (~0.18px/frame) makes the native scrollLeft
+  // approach look stepped/jerky, while the compositor happily interpolates
+  // fractional transforms — same slow pace, visibly smoother motion.
+  function setTransform(p){ track.style.transform = 'translate3d(' + (-p) + 'px,0,0)'; }
 
   function measure(){
     if (!kids.length) return;
@@ -172,7 +180,12 @@ const rmCarousel = (function(){
       next = (r.width + 16) * half;
     }
     loop = next;
-    pos = win.scrollLeft;
+    // Only resync from native scroll on first measure or while the visitor
+    // is in control (holds>0) — otherwise a resize/load re-measure would
+    // snap the auto-scroll back to the start on every call.
+    if (!inited || holds > 0) pos = win.scrollLeft;
+    inited = true;
+    if (!holds) setTransform(pos);
   }
 
   function step(now){
@@ -183,7 +196,7 @@ const rmCarousel = (function(){
     if (!holds && loop > 0){
       pos += SPEED * dt;
       if (pos >= loop) pos -= loop;
-      win.scrollLeft = pos;
+      setTransform(pos);
     }
     schedule();
   }
@@ -193,8 +206,27 @@ const rmCarousel = (function(){
     raf = requestAnimationFrame(step);
   }
 
-  function pause(){ holds++; }
-  function resume(){ holds = Math.max(0, holds - 1); last = 0; pos = win.scrollLeft; }
+  function pause(){
+    if (holds === 0){
+      // Hand off from transform-driven autoplay to native scroll so touch
+      // drag/swipe keeps working, without a visual jump.
+      suppressWrap = true;
+      win.scrollLeft = Math.round(pos);
+      track.style.transform = 'none';
+    }
+    holds++;
+  }
+  function resume(){
+    holds = Math.max(0, holds - 1);
+    if (holds === 0){
+      // Hand control back from native scroll to the transform-driven loop.
+      suppressWrap = true;
+      pos = win.scrollLeft;
+      win.scrollLeft = 0;
+      setTransform(pos);
+      last = 0;
+    }
+  }
 
   // While the visitor scrolls/drags the strip by hand, stand down for a moment
   // and pick the loop back up from wherever they left it.
@@ -213,6 +245,7 @@ const rmCarousel = (function(){
   // Keep manual scrolling inside the duplicated range so it never hits an end.
   win.addEventListener('scroll', () => {
     if (!loop) return;
+    if (suppressWrap){ suppressWrap = false; return; }
     if (win.scrollLeft >= loop * 2 - 2) win.scrollLeft -= loop;
     else if (win.scrollLeft <= 0) win.scrollLeft += loop;
     if (win._userHold) pos = win.scrollLeft;
@@ -512,8 +545,8 @@ const rmCarousel = (function(){
     });
 
     if (ready){
-      const ap = tall ? 0.85 : ANCHOR_P;
-      const at = tall ? 4.4 : ANCHOR_T;
+      const ap = tall ? 0.15 : ANCHOR_P;
+      const at = tall ? 1.9 : ANCHOR_T;
       const a = Math.min(0.98, at / duration);
       const f = p <= ap
         ? (p / ap) * a
