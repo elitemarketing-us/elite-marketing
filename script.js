@@ -95,6 +95,7 @@ function initScrollSteps(pinId, cardSelector){
   // so its two halves are measured here and filled as one continuous line —
   // same progressive darkening the desktop rail has.
   function layoutMobileLines(trigger){
+    const fills = [];
     cards.forEach((card, i) => {
       const next = cards[i + 1];
       if (!next) return;
@@ -112,11 +113,14 @@ function initScrollSteps(pinId, cardSelector){
       out.style.height = outLen.toFixed(1) + 'px';
       nin.style.height = inLen.toFixed(1) + 'px';
       const span = Math.max(1, numT - dotB);
-      const done = Math.max(0, Math.min(1, (trigger - dotB) / span)) * (outLen + inLen);
+      const f = Math.max(0, Math.min(1, (trigger - dotB) / span));
+      fills[i] = f;
+      const done = f * (outLen + inLen);
       const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
       out.style.setProperty('--line-fill', outLen ? clamp01(done / outLen) : 1);
       nin.style.setProperty('--line-fill', inLen ? clamp01((done - outLen) / inLen) : 1);
     });
+    return fills;
   }
   function clearMobileLines(){
     cards.forEach(card => {
@@ -146,6 +150,8 @@ function initScrollSteps(pinId, cardSelector){
     if (window.innerWidth <= 1050){
       wasMobile = true;
       const center = window.innerHeight * 0.6;
+      const fills = layoutMobileLines(center);
+      const linked = fills.length > 0;   // false for the Next Steps list (no connectors)
       let step = -1;
       cards.forEach((card, i) => {
         if (card.getBoundingClientRect().top < center) step = i;
@@ -153,9 +159,17 @@ function initScrollSteps(pinId, cardSelector){
       cards.forEach((card, i) => {
         const r = card.getBoundingClientRect();
         card.classList.toggle('is-active', r.top < center && r.bottom > center);
-        card.classList.toggle('is-done', i <= step);
+        // Where a dashed connector exists, the dot lights up only once that line
+        // has actually reached it — the same rule the desktop rail follows. The
+        // first dot has no incoming line, so it lights when the scroll reaches it.
+        let done;
+        if (!linked) done = i <= step;
+        else if (i === 0){
+          const d = card.querySelector('.journey-dot');
+          done = !!d && d.getBoundingClientRect().top < center;
+        } else done = fills[i - 1] >= 1;
+        card.classList.toggle('is-done', done);
       });
-      layoutMobileLines(center);
       return;
     }
     if (wasMobile){ wasMobile = false; clearMobileLines(); }
