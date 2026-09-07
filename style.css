@@ -86,6 +86,8 @@ h2{font-size:clamp(48px,6.4vw,100px);margin-bottom:26px}.section-heading>p:last-
 /* Results marquee carousel */
 .results-strip{background:var(--beige-soft);padding:96px 6vw 0;border-top:1px solid var(--line)}
 .strip-cta{margin-top:40px;display:flex;justify-content:center;position:relative;z-index:2;transform:translateY(50%)}
+.mission-map{display:grid;grid-template-columns:.92fr 1.08fr;gap:6vw;padding:0 6vw 30px}
+.mission-map img{grid-column:2;justify-self:start;display:block;width:100%;max-width:720px;height:auto}
 .mission-cta{display:grid;grid-template-columns:.92fr 1.08fr;gap:6vw;padding:8px 6vw 96px}.mission-cta a{grid-column:2;justify-self:start}
 .results-marquee{margin-top:0}
 .rm-label{font-size:12px;color:var(--muted);margin:0 0 18px;text-transform:uppercase;letter-spacing:.08em}
@@ -196,6 +198,8 @@ footer{padding:36px 4vw;border-top:1px solid var(--line);display:grid;grid-templ
   .mission{background:linear-gradient(180deg,var(--beige-soft) 0,var(--beige-soft) 24vh,var(--black) 24vh)}
   .mission-stage{display:flex;flex-direction:column;justify-content:flex-start;gap:20px;height:calc(100vh - 92px);min-height:0;padding:12px 6vw 0}
   .mission-media{position:relative;height:min(54vh,600px);width:100%;max-width:none;aspect-ratio:auto;align-self:stretch;margin:0;border-radius:24px;box-shadow:none}
+  .mission-map{display:block;padding:0 6vw 26px}
+  .mission-map img{max-width:none}
   .mission-cta{display:flex;justify-content:flex-start;padding:0 6vw 90px}
   .mission-video{height:100%;object-fit:cover;object-position:center 30%}
   .mission-media:after{border-radius:22px}
@@ -208,6 +212,8 @@ footer{padding:36px 4vw;border-top:1px solid var(--line);display:grid;grid-templ
   .mission-after .mission-text.is-in{opacity:1;transform:none}
   .timeline article{min-height:0}.process.section-pad{padding-bottom:66px}.results.section-pad{padding-top:66px;padding-bottom:66px}
   .results{z-index:1}.contact-inner{position:relative;z-index:1}.contact:before{background-position:center top 26px;background-size:min(70vw,420px) auto}
+  .mission-map{display:block;padding:0 6vw 26px}
+  .mission-map img{max-width:none}
   .mission-cta{display:flex;justify-content:flex-start;padding:0 6vw 90px}
   .journey-card .journey-dot,.steps-sticky article .journey-dot{width:20px;height:20px}.journey-foot{margin-top:24px}footer{grid-template-columns:1fr;gap:20px;text-align:center}.footer-brand{justify-self:center}.footer-brand+p,footer p:last-child{text-align:center}
 }
