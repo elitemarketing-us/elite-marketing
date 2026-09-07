@@ -87,8 +87,8 @@ h2{font-size:clamp(48px,6.4vw,100px);margin-bottom:26px}.section-heading>p:last-
 .results-strip{background:var(--beige-soft);padding:96px 6vw 0;border-top:1px solid var(--line)}
 .strip-cta{margin-top:40px;display:flex;justify-content:center;position:relative;z-index:2;transform:translateY(50%)}
 .mission-map{display:grid;grid-template-columns:.92fr 1.08fr;gap:6vw;padding:0 6vw 30px;align-items:center}
-.stat-grid{grid-column:1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:40px 30px}
-.stat-num{display:block;font-size:clamp(30px,2.7vw,44px);line-height:1;color:var(--white);font-variant-numeric:tabular-nums}
+.stat-grid{grid-column:1;justify-self:center;width:calc(min(76vh,800px)*.8);max-width:100%;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:40px 30px}
+.stat-num{display:block;font-family:var(--serif);font-size:clamp(34px,3vw,50px);line-height:1;color:var(--white);font-variant-numeric:tabular-nums}
 .stat-label{display:block;margin-top:10px;font-size:15px;color:rgba(255,255,255,.62)}
 .world-map{grid-column:2;justify-self:start;position:relative;margin:0;width:100%;max-width:720px}
 .world-map img{display:block;width:100%;height:auto}
@@ -210,8 +210,8 @@ footer{padding:36px 4vw;border-top:1px solid var(--line);display:grid;grid-templ
   .mission-stage{display:flex;flex-direction:column;justify-content:flex-start;gap:20px;height:calc(100vh - 92px);min-height:0;padding:12px 6vw 0}
   .mission-media{position:relative;height:min(54vh,600px);width:100%;max-width:none;aspect-ratio:auto;align-self:stretch;margin:0;border-radius:24px;box-shadow:none}
   .mission-map{display:block;padding:0 6vw 26px}
-  .stat-grid{gap:26px 20px;margin-bottom:30px}
-  .stat-num{font-size:30px}
+  .stat-grid{width:auto;justify-self:stretch;gap:26px 20px;margin-bottom:30px}
+  .stat-num{font-size:34px}
   .stat-label{font-size:13px;margin-top:6px}
   .world-map{max-width:none}
   .mission-cta{display:flex;justify-content:flex-start;padding:0 6vw 90px}
@@ -227,8 +227,8 @@ footer{padding:36px 4vw;border-top:1px solid var(--line);display:grid;grid-templ
   .timeline article{min-height:0}.process.section-pad{padding-bottom:66px}.results.section-pad{padding-top:66px;padding-bottom:66px}
   .results{z-index:1}.contact-inner{position:relative;z-index:1}.contact:before{background-position:center top 26px;background-size:min(70vw,420px) auto}
   .mission-map{display:block;padding:0 6vw 26px}
-  .stat-grid{gap:26px 20px;margin-bottom:30px}
-  .stat-num{font-size:30px}
+  .stat-grid{width:auto;justify-self:stretch;gap:26px 20px;margin-bottom:30px}
+  .stat-num{font-size:34px}
   .stat-label{font-size:13px;margin-top:6px}
   .world-map{max-width:none}
   .mission-cta{display:flex;justify-content:flex-start;padding:0 6vw 90px}
