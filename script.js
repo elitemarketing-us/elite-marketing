@@ -48,6 +48,94 @@ els.forEach(el => io.observe(el));
   check();
 })();
 
+// Small shared trigger: run once when an element reaches the viewport. Backs the
+// observer with a plain scroll check, since a missed observer must never leave
+// content in its "before" state.
+function whenInView(el, run, marginPct){
+  const margin = (marginPct == null ? 0.14 : marginPct);
+  let done = false;
+  function fire(){
+    if (done) return;
+    done = true;
+    window.removeEventListener('scroll', check);
+    window.removeEventListener('resize', check);
+    if (io) io.disconnect();
+    run();
+  }
+  function check(){
+    const r = el.getBoundingClientRect();
+    const m = window.innerHeight * margin;
+    if (r.top < window.innerHeight - m && r.bottom > m) fire();
+  }
+  let io = null;
+  if ('IntersectionObserver' in window){
+    io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) fire(); });
+    }, { threshold: 0, rootMargin: '-' + Math.round(margin*100) + '% 0px' });
+    io.observe(el);
+  }
+  window.addEventListener('scroll', check, { passive:true });
+  window.addEventListener('resize', check);
+  check();
+}
+
+// Stats count up from zero when the block arrives. The final values are already
+// in the HTML, so if this never runs the numbers simply stand still and correct.
+(function(){
+  const nums = Array.from(document.querySelectorAll('.stat-num[data-count-to]'));
+  if (!nums.length) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const format = (el, v) => {
+    const dec = parseInt(el.dataset.decimals || '0', 10);
+    const n = v.toFixed(dec);
+    const withSep = dec ? n : Number(n).toLocaleString('en-US');
+    return (el.dataset.prefix || '') + withSep + (el.dataset.suffix || '');
+  };
+  nums.forEach(el => { el.dataset.finalText = el.textContent; el.textContent = format(el, 0); });
+  const host = document.querySelector('.mission-map') || nums[0];
+  whenInView(host, () => {
+    const DUR = 1600, t0 = performance.now();
+    (function step(now){
+      const p = Math.min(1, (now - t0) / DUR);
+      const e = 1 - Math.pow(1 - p, 3);            // desacelera no fim
+      nums.forEach(el => {
+        el.textContent = p < 1 ? format(el, parseFloat(el.dataset.countTo) * e)
+                               : el.dataset.finalText;
+      });
+      if (p < 1) requestAnimationFrame(step);
+    })(t0);
+    // se o rAF nao rodar (aba oculta), garante o valor final
+    setTimeout(() => nums.forEach(el => { el.textContent = el.dataset.finalText; }), DUR + 400);
+  });
+})();
+
+// World map: hovering a country highlights it and names it.
+(function(){
+  const map = document.getElementById('worldMap');
+  const label = document.getElementById('worldMapName');
+  if (!map || !label) return;
+  const paths = Array.from(map.querySelectorAll('.world-map-hit path'));
+  let active = null;
+  function show(p){
+    active = p;
+    label.textContent = p.dataset.country;
+    label.style.left = p.dataset.cx + '%';
+    label.style.top = p.dataset.cy + '%';
+    label.classList.add('is-on');
+    p.classList.add('is-on');
+  }
+  function hide(p){
+    if (p) p.classList.remove('is-on');
+    if (active === p || !p){ label.classList.remove('is-on'); active = null; }
+  }
+  paths.forEach(p => {
+    p.addEventListener('mouseenter', () => show(p));
+    p.addEventListener('mouseleave', () => hide(p));
+    p.addEventListener('touchstart', () => show(p), { passive:true });
+  });
+  map.addEventListener('mouseleave', () => { paths.forEach(p => p.classList.remove('is-on')); hide(null); });
+})();
+
 document.getElementById('year').textContent = new Date().getFullYear();
 
 const btn = document.querySelector('.menu-button');

@@ -86,8 +86,19 @@ h2{font-size:clamp(48px,6.4vw,100px);margin-bottom:26px}.section-heading>p:last-
 /* Results marquee carousel */
 .results-strip{background:var(--beige-soft);padding:96px 6vw 0;border-top:1px solid var(--line)}
 .strip-cta{margin-top:40px;display:flex;justify-content:center;position:relative;z-index:2;transform:translateY(50%)}
-.mission-map{display:grid;grid-template-columns:.92fr 1.08fr;gap:6vw;padding:0 6vw 30px}
-.mission-map img{grid-column:2;justify-self:start;display:block;width:100%;max-width:720px;height:auto}
+.mission-map{display:grid;grid-template-columns:.92fr 1.08fr;gap:6vw;padding:0 6vw 30px;align-items:center}
+.stat-grid{grid-column:1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:40px 30px}
+.stat-num{display:block;font-size:clamp(30px,2.7vw,44px);line-height:1;color:var(--white);font-variant-numeric:tabular-nums}
+.stat-label{display:block;margin-top:10px;font-size:15px;color:rgba(255,255,255,.62)}
+.world-map{grid-column:2;justify-self:start;position:relative;margin:0;width:100%;max-width:720px}
+.world-map img{display:block;width:100%;height:auto}
+/* Overlay of the highlighted countries: transparent until hovered, so the PNG
+   underneath stays the artwork and this layer only handles highlight + name. */
+.world-map-hit{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.world-map-hit path{fill:transparent;stroke:transparent;stroke-width:3;paint-order:stroke;cursor:pointer;transition:fill .25s}
+.world-map-hit path:hover,.world-map-hit path.is-on{fill:var(--beige)}
+.world-map-name{position:absolute;left:0;top:0;transform:translate(-50%,-165%);padding:6px 13px;border-radius:999px;background:rgba(18,17,16,.94);border:1px solid rgba(255,255,255,.18);color:var(--white);font-size:12px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;z-index:2}
+.world-map-name.is-on{opacity:1}
 .mission-cta{display:grid;grid-template-columns:.92fr 1.08fr;gap:6vw;padding:8px 6vw 96px}.mission-cta a{grid-column:2;justify-self:start}
 .results-marquee{margin-top:0}
 .rm-label{font-size:12px;color:var(--muted);margin:0 0 18px;text-transform:uppercase;letter-spacing:.08em}
@@ -199,7 +210,10 @@ footer{padding:36px 4vw;border-top:1px solid var(--line);display:grid;grid-templ
   .mission-stage{display:flex;flex-direction:column;justify-content:flex-start;gap:20px;height:calc(100vh - 92px);min-height:0;padding:12px 6vw 0}
   .mission-media{position:relative;height:min(54vh,600px);width:100%;max-width:none;aspect-ratio:auto;align-self:stretch;margin:0;border-radius:24px;box-shadow:none}
   .mission-map{display:block;padding:0 6vw 26px}
-  .mission-map img{max-width:none}
+  .stat-grid{gap:26px 20px;margin-bottom:30px}
+  .stat-num{font-size:30px}
+  .stat-label{font-size:13px;margin-top:6px}
+  .world-map{max-width:none}
   .mission-cta{display:flex;justify-content:flex-start;padding:0 6vw 90px}
   .mission-video{height:100%;object-fit:cover;object-position:center 30%}
   .mission-media:after{border-radius:22px}
@@ -213,7 +227,10 @@ footer{padding:36px 4vw;border-top:1px solid var(--line);display:grid;grid-templ
   .timeline article{min-height:0}.process.section-pad{padding-bottom:66px}.results.section-pad{padding-top:66px;padding-bottom:66px}
   .results{z-index:1}.contact-inner{position:relative;z-index:1}.contact:before{background-position:center top 26px;background-size:min(70vw,420px) auto}
   .mission-map{display:block;padding:0 6vw 26px}
-  .mission-map img{max-width:none}
+  .stat-grid{gap:26px 20px;margin-bottom:30px}
+  .stat-num{font-size:30px}
+  .stat-label{font-size:13px;margin-top:6px}
+  .world-map{max-width:none}
   .mission-cta{display:flex;justify-content:flex-start;padding:0 6vw 90px}
   .journey-card .journey-dot,.steps-sticky article .journey-dot{width:20px;height:20px}.journey-foot{margin-top:24px}footer{grid-template-columns:1fr;gap:20px;text-align:center}.footer-brand{justify-self:center}.footer-brand+p,footer p:last-child{text-align:center}
 }
